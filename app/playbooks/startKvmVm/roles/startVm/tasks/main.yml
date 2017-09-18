@@ -1,0 +1,5 @@
+---
+- name: start vm
+  virt:
+      name: "{{vmName}}"
+      state: running

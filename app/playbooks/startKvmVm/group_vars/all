@@ -1,0 +1,7 @@
+baseImageDir: /data/basesong
+baseImageName: song.qcow2
+vmName: 
+vmDir: /data/{{vmName}}
+vmIP:
+vmMEM: 2048
+vmCPU: 2

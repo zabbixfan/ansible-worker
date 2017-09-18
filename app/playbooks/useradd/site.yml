@@ -1,0 +1,14 @@
+---
+- hosts: all
+  user: root
+  gather_facts: no
+  sudo: no
+  vars:
+     rule: "{{rule}}"
+  tasks:
+   - name: add group {{ login_name }}
+     action: group name={{rule}}
+   - name: add user {{login_name}} 
+     action: user name={{ login_name }} password={{login_name}} group={{rule}} update_password=always shell=/bin/bash home=/home/{{ login_name }}
+  tags:
+   - user

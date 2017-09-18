@@ -1,0 +1,35 @@
+---
+- name: show start time
+  shell: date +%T
+
+
+- name: create vm dir
+  file: path={{ vmDir }} state=directory
+
+- name: create vm image
+  shell: qemu-img create -f qcow2 -b {{baseImageDir}}/{{baseImageName}}  {{vmDir}}/{{vmName}}.qcow2 creates={{vmDir}}/{{vmName}}.qcow2
+
+- name: create xml file
+  template: src=vm.xml.j2 dest={{vmDir}}/{{vmName}}.xml
+
+- name: define vm
+  virt: name={{vmName}} command=define xml={{ lookup('template', 'vm.xml.j2') }}
+
+- name: create networkfile
+  template: src=ifcfg-eth0.j2 dest={{vmDir}}/ifcfg-eth0
+
+- name: copy networkfile
+  shell: virt-copy-in -a {{vmDir}}/{{vmName}}.qcow2 {{vmDir}}/ifcfg-eth0  /etc/sysconfig/network-scripts/
+  args:
+    creates: "{{vmDir}}/networkbackup"
+
+- file: path={{vmDir}}/networkbackup state=touch
+
+- name: start vm
+  virt:
+      name: "{{vmName}}"
+      state: running
+
+- name: show end time
+  shell: date +%T
+

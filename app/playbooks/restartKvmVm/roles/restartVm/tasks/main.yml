@@ -1,0 +1,11 @@
+---
+- name: stop vm
+  virt:
+      name: "{{vmName}}"
+      state: destroyed
+
+- name: restart vm
+  virt:
+      name: "{{vmName}}"
+      state: running
+

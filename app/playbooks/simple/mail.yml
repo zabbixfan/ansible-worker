@@ -1,0 +1,13 @@
+---
+- hosts: all
+  gather_facts: false
+  remote_user: root
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: first
+      shell: date
+      tags: one
+    - name: second
+      shell: whoami
+      tags: two

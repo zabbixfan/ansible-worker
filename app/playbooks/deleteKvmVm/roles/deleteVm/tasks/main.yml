@@ -1,0 +1,9 @@
+---
+- name: stop vm
+  virt: name="{{vmName}}" state=destroyed
+
+- name: delete vm
+  virt: name="{{vmName}}" command=undefine
+
+- name: delete vm file
+  file: path="{{vmDir}}" state=absent
