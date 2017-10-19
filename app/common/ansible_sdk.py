@@ -17,7 +17,7 @@ from ansible.utils.color import colorize, hostcolor
 
 class ResultsCollector(CallbackBase):
     """
-    Reference: https://github.com/ansible/ansible/blob/v2.0.0.2-1/lib/ansible/plugins/callback/default.py
+    Reference: https://github.com /ansible/ansible/blob/v2.0.0.2-1/lib/ansible/plugins/callback/default.py
     """
     def __init__(self, *args, **kwargs):
         super(ResultsCollector, self).__init__(*args, **kwargs)
@@ -296,7 +296,7 @@ class ansibleRunner(object):
         self.inventory = MyInventory(self.resource, self.loader, self.variable_manager,self.host_list)
         self.variable_manager.set_inventory(self.inventory)
 
-    def run(self, host_list, module_name, module_args, ):
+    def run(self, host_list, module_name, module_args):
         """
         run module from andible ad-hoc.
         module_name: ansible module_name
@@ -328,7 +328,7 @@ class ansibleRunner(object):
         finally:
             if tqm is not None:
                 tqm.cleanup()
-        tqm = None
+        # tqm = None
         return self.get_result()
 
     def run_playbook(self,playbookName,extra_vars={}):
@@ -367,26 +367,28 @@ class ansibleRunner(object):
                 self.result_all['success'][host]=[]
             for result in results:
                 if result._result.has_key('cmd'):
-                    self.result_all['success'][host].append({'taskName':result.task_name,'taskResult':{'cmd':result._result['cmd'],'stdout':result._result['stdout'],'changed':result._result['changed']}})
+                    self.result_all['success'][host].append({'taskName':result._task.name,'taskResult':{'cmd':result._result['cmd'],'stdout':result._result['stdout'],'changed':result._result['changed']}})
                 else:
                     delKey= ['_ansible_parsed','_ansible_no_log','invocation','_ansible_verbose_always']
                     for key in delKey:
                         if result._result.has_key(key):
                             result._result.pop(key)
-                    self.result_all['success'][host].append({'taskName':result.task_name,'taskResult':result._result})
+                    self.result_all['success'][host].append({'taskName':result._task.name,'taskResult':result._result})
 
         for host, result in self.results_callback.host_failed.items():
             if 'msg' in result._result.keys():
-                self.result_all['failed'][host] = {'taskName':result.task_name,'taskResult':result._result['msg']}
+                self.result_all['failed'][host] = {'taskName':result._task.name,'taskResult':result._result['msg']}
             else:
-                self.result_all['failed'][host] = {'taskName':result.task_name,'taskResult':result._result['stderr']}
+                self.result_all['failed'][host] = {'taskName':result._task.name,'taskResult':result._result['stderr']}
 
         for host, result in self.results_callback.host_unreachable.items():
-            self.result_all['unreachable'][host] = {'taskName': result.task_name, 'taskResult': result._result['msg']}
+            self.result_all['unreachable'][host] = {'taskName': result._task.name, 'taskResult': result._result['msg']}
+        if
         return self.result_all
 
 if __name__ == '__main__':
     res = [{"hostname": "192.168.4.119","username":"root"},{"hostname": "192.168.100.43","username":"root"}]
-    tqm = ansibleRunner(res,host_list=['192.168.4.119'])
-    print tqm.run_playbook(playbookName='stopKvmVm',extra_vars={'vmName':'BrokerService-TEST-4.48','vmIP':'192.168.4.183'})
+    tqm = ansibleRunner(res,host_list=['192.168.100.43'])
+    #print tqm.run_playbook(playbookName='stopKvmVm',extra_vars={'vmName':'BrokerService-TEST-4.48','vmIP':'192.168.4.183'})
     #print tqm.run(host_list=['192.168.4.119'],module_name='virt',module_args={'name':'DataCenter-TEST-4.49','command':'status'})
+    print tqm.run(host_list=['192.168.100.43'],module_name='shell',module_args='whoami')

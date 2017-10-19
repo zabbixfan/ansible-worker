@@ -146,7 +146,6 @@ def ansibleExcutor(cmd,callback,*args,**kwargs):
         ip = [ip]
     tqm = ansibleRunner(res, host_list=ip)
     res = tqm.run_playbook(playbookName=playBookName,extra_vars=params)
-    print res
     if res['failed'] or res['unreachable']:
         status = 1
     else:
@@ -158,7 +157,6 @@ def ansibleExcutor(cmd,callback,*args,**kwargs):
         log.result = json.dumps(res)
         log.save()
     if callback:
-        print callback
         if playBookName  in ['createKvmVm','startKvmVm','stopKvmVm','deleteKvmVm','restartKvmVm']:
             if status == 0:
                 data={
@@ -182,7 +180,7 @@ def ansibleExcutor(cmd,callback,*args,**kwargs):
         if playBookName == 'useradd':
             result =  '{} {} on {} success'.format(playBookName,params['login_name'],' '.join(ip))
         if playBookName in ['createKvmVm', 'startKvmVm', 'stopKvmVm', 'deleteKvmVm', 'restartKvmVm']:
-            result = ''
+            result = '{} {} success'.format(playBookName,' '.join(ip))
         data = {
                 'server': ip,
                 'result': result,
@@ -192,16 +190,18 @@ def ansibleExcutor(cmd,callback,*args,**kwargs):
     if status == 1:
         if playBookName == 'useradd':
             if res['unreachable']:
-                a = res['unreachable'].keys()[0]
-                print type(a),a
-                result = '{} {} on {} failed'.format(playBookName, params['login_name'], a)
+                result = '{} {} on {} failed'.format(playBookName, params['login_name'], res['unreachable'].keys()[0])
                 message = res['unreachable'].values()[0]
             if res['failed']:
                 result = '{} {} on {} failed'.format(playBookName, params['login_name'], res['failed'].keys()[0])
                 message = res['failed'].values()[0]
         if playBookName in ['createKvmVm', 'startKvmVm', 'stopKvmVm', 'deleteKvmVm', 'restartKvmVm']:
-            result = ''
-            message = ''
+            if res['unreachable']:
+                result = '{} {} failed'.format(playBookName, res['unreachable'].keys()[0])
+                message = res['unreachable'].values()[0]
+            if res['failed']:
+                result = '{} {} failed'.format(playBookName, res['failed'].keys()[0])
+                message = res['failed'].values()[0]
         data = {
             'server': ip,
             'result': result,
@@ -211,3 +211,9 @@ def ansibleExcutor(cmd,callback,*args,**kwargs):
         }
     print status,data
     return status,data
+
+def ansibleAdHoc(moduleName,params,ips):
+    res=[{"hostname":ip,"username":"root"}for ip in ips]
+    tqm = ansibleRunner(res,host_list=ips)
+    result = tqm.run(host_list=ips,module_name=moduleName,module_args=params)
+    return result,ResposeStatus.Success

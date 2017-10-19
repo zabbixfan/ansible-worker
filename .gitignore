@@ -29,4 +29,5 @@ celerybeat.pid
 *.pyc
 */*.pyc
 config.py
-
+.DS_Store
+*.retry

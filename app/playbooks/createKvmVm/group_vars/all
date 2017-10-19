@@ -5,3 +5,12 @@ vmDir: /data/{{vmName}}
 vmIP:
 vmMEM: 2048
 vmCPU: 2
+create_files:
+    - { source: ifcfg-eth0.j2, destination: '{{vmDir}}/ifcfg-eth0' }
+    - { source: hostname.j2, destination: '{{vmDir}}/hostname' }
+    - { source: hosts.j2, destination: '{{vmDir}}/hosts' }
+
+copy_files:
+    - { source: ifcfg-eth0, destination: /etc/sysconfig/network-scripts/ }
+    - { source: hostname, destination: '/etc/' }
+    - { source: hosts, destination: '/etc/' }

@@ -5,6 +5,7 @@ import requests
 
 
 def SignatureGeneration(res_dict={}, secret_key=""):
+    print res_dict
     """
     生成签名
     :param secret_key: 签名 Key
